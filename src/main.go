@@ -19,4 +19,6 @@ func main() {
 	// category tree mock
 	root_categories := trees.GetCategoryTree()
 	root_categories.PrintTree(0)
+
+	fmt.Println(root_locations.FindNode(12).RoadUp())
 }

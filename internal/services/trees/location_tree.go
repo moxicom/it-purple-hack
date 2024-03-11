@@ -30,6 +30,7 @@ func GetLocationsTree() *Node {
 func (node *Node) insertNodeRecursively(loc RawData, idGlobal *int64) {
 	*idGlobal++
 	newNode := NewNode(loc.Name, *idGlobal)
+	newNode.Parent = node
 	node.Children = append(node.Children, newNode)
 	for _, sublocationData := range loc.SubElements {
 		newNode.insertNodeRecursively(sublocationData, idGlobal)
@@ -52,14 +53,14 @@ func (l *Node) AddChild(child *Node) {
 
 // Print tree recursively
 func (l *Node) PrintTree(indent int) {
-	fmt.Printf("%s%d - %s\n", generateLocationIndent(indent), l.ID, l.Name)
+	fmt.Printf("%s%d - %s\n", generateIndent(indent), l.ID, l.Name)
 	for _, child := range l.Children {
 		child.PrintTree(indent + 2)
 	}
 }
 
 // Генерирует отступ для вывода
-func generateLocationIndent(indent int) string {
+func generateIndent(indent int) string {
 	result := ""
 	for i := 0; i < indent; i++ {
 		result += " "
