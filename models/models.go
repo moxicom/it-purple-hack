@@ -13,3 +13,8 @@ type PriceInfo struct {
 	Matrix_id        int `json:"matrix_id"`
 	User_segment_id  int `json:"user_segment_id"`
 }
+
+type Storage struct {
+	Baseline  string           `json:"baseline"`
+	Discounts []map[int]string `json:"discounts"`
+}

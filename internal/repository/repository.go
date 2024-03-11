@@ -4,10 +4,10 @@ import (
 	"database/sql"
 )
 
-type Postgres struct {
+type Repository struct {
 	db *sql.DB
 }
 
-func NewPostgres(db *sql.DB) *Postgres {
-	return &Postgres{db}
+func NewPostgres(db *sql.DB) *Repository {
+	return &Repository{db}
 }
