@@ -1,20 +1,26 @@
 package models
 
 type PriceRequest struct {
-	Location_id      int `json:"location_id"`
-	Microcategory_id int `json:"microcategory_id"`
-	User_id          int `json:"user_id"`
+	LocationId      int64 `json:"location_id"`
+	MicrocategoryId int64 `json:"microcategory_id"`
+	UserId          int64 `json:"user_id"`
 }
 
 type PriceInfo struct {
-	Price            int `json:"price"`
-	Location_id      int `json:"location_id"`
-	Microcategory_id int `json:"microcategory_id"`
-	Matrix_id        int `json:"matrix_id"`
-	User_segment_id  int `json:"user_segment_id"`
+	Price           int64 `json:"price"`
+	LocationId      int64 `json:"location_id"`
+	MicrocategoryId int64 `json:"microcategory_id"`
+	IsDiscount      bool  `json:"is_discount"`
+	MatrixId        int64 `json:"matrix_id"`
+	UserSegmentId   int64 `json:"user_segment_id"`
+}
+
+type Discount struct {
+	SegmentId      int64
+	DiscountMatrix string
 }
 
 type Storage struct {
-	Baseline  string           `json:"baseline"`
-	Discounts []map[int]string `json:"discounts"`
+	Baseline  string     `json:"baseline"`
+	Discounts []Discount `json:"discounts"`
 }
