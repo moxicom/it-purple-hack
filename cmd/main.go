@@ -13,12 +13,12 @@ func main() {
 
 	// location tree mock
 	root_locations := trees.GetLocationsTree()
-	root_locations.PrintTree(0)
+	root_locations.PrintTree()
 	fmt.Println()
+	fmt.Println(root_locations.RoadUp(0))
 
 	// category tree mock
-	root_categories := trees.GetCategoryTree()
-	root_categories.PrintTree(0)
+	// root_categories := trees.GetCategoryTree()
+	// root_categories.PrintTree(0)
 
-	fmt.Println(root_locations.FindNode(12).RoadUp())
 }
