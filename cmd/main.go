@@ -32,28 +32,34 @@ func main() {
 	categories := trees.GetCategoriesTree()
 	// locationsTree.PrintTree()
 	categories.PrintTree()
-	// Mock service request
+
 	priceService := price.NewPriceService(repo, categories, locationsTree)
+
+	//
+	// Mock service requests
+	//
 	fmt.Println()
-	price, err := priceService.GetPrice(
-		models.PriceRequest{
-			LocationId:      11,
-			MicrocategoryId: 11,
-			UserId:          2200,
-		},
-		models.Storage{
-			Baseline: "baseline_matrix_1",
-			Discounts: []models.Discount{
-				{
-					SegmentId:      100,
-					DiscountMatrix: "discount_matrix_1",
-				},
-				{
-					SegmentId:      290,
-					DiscountMatrix: "discount_matrix_2",
-				},
+	testStorage := models.Storage{
+		Baseline: "baseline_matrix_1",
+		Discounts: []models.Discount{
+			{
+				SegmentId:      168,
+				DiscountMatrix: "discount_matrix_1",
+			},
+			{
+				SegmentId:      290,
+				DiscountMatrix: "discount_matrix_2",
 			},
 		},
+	}
+	price, err := priceService.GetPrice(
+		models.PriceRequest{
+			LocationId:      7,
+			MicrocategoryId: 18,
+			UserId:          2200,
+			// 168, 290,
+		},
+		testStorage,
 	)
 	if err != nil {
 		panic(err)
@@ -63,4 +69,38 @@ func main() {
 	fmt.Println("MATR_ID", price.MatrixId)
 	fmt.Println("PRICE", price.Price)
 	fmt.Println("SEGMENT_ID", price.UserSegmentId)
+
+	err = priceService.UpdatePrice(
+		models.UpdateRequest{
+			LocationId:      7,
+			MicrocategoryId: 18,
+			MatrixId:        1,
+			IsDiscount:      true,
+			NewPrice:        12345,
+		},
+		testStorage,
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	price, err = priceService.GetPrice(
+		models.PriceRequest{
+			LocationId:      7,
+			MicrocategoryId: 18,
+			UserId:          2200,
+			// 168, 290,
+		},
+		testStorage,
+	)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println()
+	fmt.Println("IS DISC", price.IsDiscount)
+	fmt.Println("MATR_ID", price.MatrixId)
+	fmt.Println("PRICE", price.Price)
+	fmt.Println("SEGMENT_ID", price.UserSegmentId)
+
 }

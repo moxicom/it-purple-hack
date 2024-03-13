@@ -22,7 +22,7 @@ func (rep *Repository) GetPrice(
 	for _, locationId := range locationsRoadUp {
 		for _, microcategoryId := range categoriesRoadUp {
 			// Check cache
-			price, err := rep.GetPriceCache(isDiscount, matrixId, locationId, microcategoryId)
+			price, err := rep.getPriceCache(isDiscount, matrixId, locationId, microcategoryId)
 			if err != nil && err != redis.Nil {
 				return -1, err
 			}
@@ -39,16 +39,16 @@ func (rep *Repository) GetPrice(
 			fmt.Printf("No redis cache: matrix_id=%v Location_id=%v Microcategory_id=%v\n", matrixId, locationId, microcategoryId)
 
 			// TODO: fetch databse
-			price, err = rep.FetchDatabase(isDiscount, matrixId, locationId, microcategoryId)
+			price, err = rep.fetchDatabase(isDiscount, matrixId, locationId, microcategoryId)
 			if err != nil && err != sql.ErrNoRows {
 				// Catched an error
 				return -1, err
 			} else if err != nil && err == sql.ErrNoRows {
 				// Did not find data
-				rep.SetPriceCache(isDiscount, matrixId, locationId, microcategoryId, -1)
+				rep.setPriceCache(isDiscount, matrixId, locationId, microcategoryId, -1)
 			} else if err == nil {
 				// Found data in database
-				rep.SetPriceCache(isDiscount, matrixId, locationId, microcategoryId, price)
+				rep.setPriceCache(isDiscount, matrixId, locationId, microcategoryId, price)
 				return price, nil
 			}
 		}
@@ -56,7 +56,7 @@ func (rep *Repository) GetPrice(
 	return -1, nil
 }
 
-func (rep *Repository) GetPriceCache(
+func (rep *Repository) getPriceCache(
 	isDiscount bool,
 	matrixId int64,
 	locationId int64,
@@ -73,7 +73,7 @@ func (rep *Repository) GetPriceCache(
 	return price, err
 }
 
-func (rep *Repository) SetPriceCache(isDiscount bool,
+func (rep *Repository) setPriceCache(isDiscount bool,
 	matrixId int64,
 	locationId int64,
 	microcategoryId int64,
@@ -89,14 +89,22 @@ func (rep *Repository) SetPriceCache(isDiscount bool,
 	return err
 }
 
-func (rep *Repository) FetchDatabase(
+func (rep *Repository) fetchDatabase(
 	isDiscount bool,
 	matrixId int64,
 	locationId int64,
-	microcategoryId int64) (int64, error) {
+	microcategoryId int64,
+) (int64, error) {
+	var matrixPrefix string
 	if isDiscount {
-		return rep.getPairPrice(fmt.Sprintf("%s_%v", discountMatrixName, matrixId), locationId, microcategoryId)
+		matrixPrefix = discountMatrixName
 	} else {
-		return rep.getPairPrice(fmt.Sprintf("%s_%v", baselineMatrixName, matrixId), locationId, microcategoryId)
+		matrixPrefix = baselineMatrixName
 	}
+
+	return rep.getPairPrice(
+		fmt.Sprintf("%s_%v", matrixPrefix, matrixId),
+		locationId,
+		microcategoryId,
+	)
 }

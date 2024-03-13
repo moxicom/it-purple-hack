@@ -6,7 +6,7 @@ import (
 
 func (rep *Repository) getPairPrice(
 	matrixName string,
-	locationID,
+	locationID int64,
 	microcategoryId int64,
 ) (int64, error) {
 	var price int64
@@ -19,4 +19,18 @@ func (rep *Repository) getPairPrice(
 		return 0, err
 	}
 	return price, nil
+}
+
+func (rep *Repository) updatePairPrice(
+	matrixName string,
+	locationID int64,
+	microcategoryId int64,
+	newPrice int64,
+) error {
+	_, err := rep.db.Exec(
+		fmt.Sprintf(
+			"UPDATE %s SET price = $1 WHERE location_id = $2 AND microcategory_id = $3", matrixName,
+		), newPrice, locationID, microcategoryId,
+	)
+	return err
 }
