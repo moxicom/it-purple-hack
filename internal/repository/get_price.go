@@ -1,11 +1,102 @@
 package repository
 
-import "github.com/moxicom/it-purple-hack/models"
+import (
+	"context"
+	"database/sql"
+	"fmt"
 
-func (rep *Repository) GetPrice(req models.PriceRequest, s models.Storage) (models.PriceInfo, error) {
-	return models.PriceInfo{}, nil
+	"github.com/redis/go-redis/v9"
+)
+
+const (
+	discountMatrixName = "discount_matrix"
+	baselineMatrixName = "baseline_matrix"
+)
+
+func (rep *Repository) GetPrice(
+	isDiscount bool,
+	matrixId int64,
+	locationsRoadUp []int64,
+	categoriesRoadUp []int64,
+) (int64, error) {
+	for _, locationId := range locationsRoadUp {
+		for _, microcategoryId := range categoriesRoadUp {
+			// Check cache
+			price, err := rep.GetPriceCache(isDiscount, matrixId, locationId, microcategoryId)
+			if err != nil && err != redis.Nil {
+				return -1, err
+			}
+
+			if err == nil && price != -1 {
+				// If price has found
+				fmt.Printf("Found in cache: Microcategory_id=%v, Location_id=%v, price=%v\n", microcategoryId, locationId, price)
+				return price, nil
+			} else if err == nil && price == -1 {
+				fmt.Printf("Found in cache: Microcategory_id=%v, Location_id=%v, price=%v\n", microcategoryId, locationId, price)
+				continue
+			}
+
+			fmt.Printf("No redis cache: matrix_id=%v Location_id=%v Microcategory_id=%v\n", matrixId, locationId, microcategoryId)
+
+			// TODO: fetch databse
+			price, err = rep.FetchDatabase(isDiscount, matrixId, locationId, microcategoryId)
+			if err != nil && err != sql.ErrNoRows {
+				// Catched an error
+				return -1, err
+			} else if err != nil && err == sql.ErrNoRows {
+				// Did not find data
+				rep.SetPriceCache(isDiscount, matrixId, locationId, microcategoryId, -1)
+			} else if err == nil {
+				// Found data in database
+				rep.SetPriceCache(isDiscount, matrixId, locationId, microcategoryId, price)
+				return price, nil
+			}
+		}
+	}
+	return -1, nil
 }
 
-func (rep *Repository) GetPriceCache() {
-	
+func (rep *Repository) GetPriceCache(
+	isDiscount bool,
+	matrixId int64,
+	locationId int64,
+	microcategoryId int64,
+) (int64, error) {
+	ctx := context.Background()
+	var err error
+	price := int64(-1)
+	if isDiscount {
+		price, err = rep.getMatrixCache(ctx, fmt.Sprintf("%s_%v", discountMatrixName, matrixId), locationId, microcategoryId)
+	} else {
+		price, err = rep.getMatrixCache(ctx, fmt.Sprintf("%s_%v", baselineMatrixName, matrixId), locationId, microcategoryId)
+	}
+	return price, err
+}
+
+func (rep *Repository) SetPriceCache(isDiscount bool,
+	matrixId int64,
+	locationId int64,
+	microcategoryId int64,
+	price int64,
+) error {
+	ctx := context.Background()
+	var err error
+	if isDiscount {
+		err = rep.setMatrixCache(ctx, fmt.Sprintf("%s_%v", discountMatrixName, matrixId), locationId, microcategoryId, price)
+	} else {
+		err = rep.setMatrixCache(ctx, fmt.Sprintf("%s_%v", baselineMatrixName, matrixId), locationId, microcategoryId, price)
+	}
+	return err
+}
+
+func (rep *Repository) FetchDatabase(
+	isDiscount bool,
+	matrixId int64,
+	locationId int64,
+	microcategoryId int64) (int64, error) {
+	if isDiscount {
+		return rep.getPairPrice(fmt.Sprintf("%s_%v", discountMatrixName, matrixId), locationId, microcategoryId)
+	} else {
+		return rep.getPairPrice(fmt.Sprintf("%s_%v", baselineMatrixName, matrixId), locationId, microcategoryId)
+	}
 }

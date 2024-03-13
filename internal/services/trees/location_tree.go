@@ -16,6 +16,18 @@ var locationID int64
 func GetLocationsTree() *Tree {
 	// Create root location
 	locationID = 0
-	tree := NewTree(rawLocations, &locationID)
+	tree := NewTree(ConvertLocationsToStruct(), &locationID)
 	return tree
+}
+
+func ConvertLocationsToStruct() []RawData {
+	data := []RawData{}
+	for name, childs := range rawLocations {
+		subElements := []RawData{}
+		for _, childName := range childs {
+			subElements = append(subElements, RawData{Name: childName})
+		}
+		data = append(data, RawData{name, subElements})
+	}
+	return data
 }

@@ -12,3 +12,10 @@ var categoryID int64
 
 // 	return allRegions
 // }
+
+func GetCategoriesTree() *Tree {
+	// Create root location
+	categoryID = 0
+	tree := NewTree(rawCategories, &categoryID)
+	return tree
+}
