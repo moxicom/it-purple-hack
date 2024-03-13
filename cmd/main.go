@@ -69,7 +69,11 @@ func main() {
 	fmt.Println("MATR_ID", price.MatrixId)
 	fmt.Println("PRICE", price.Price)
 	fmt.Println("SEGMENT_ID", price.UserSegmentId)
+	fmt.Println("LOCATION_ID", price.LocationId)
+	fmt.Println("MICROCATEGORY_ID", price.MicrocategoryId)
 
+	fmt.Println()
+	fmt.Println("Update")
 	err = priceService.UpdatePrice(
 		models.UpdateRequest{
 			LocationId:      7,
@@ -102,7 +106,11 @@ func main() {
 	fmt.Println("MATR_ID", price.MatrixId)
 	fmt.Println("PRICE", price.Price)
 	fmt.Println("SEGMENT_ID", price.UserSegmentId)
+	fmt.Println("LOCATION_ID", price.LocationId)
+	fmt.Println("MICROCATEGORY_ID", price.MicrocategoryId)
 
+	fmt.Println()
+	fmt.Println("Delete")
 	err = priceService.DeleteDiscount(
 		models.UpdateRequest{
 			LocationId:      7,
@@ -135,5 +143,7 @@ func main() {
 	fmt.Println("MATR_ID", price.MatrixId)
 	fmt.Println("PRICE", price.Price)
 	fmt.Println("SEGMENT_ID", price.UserSegmentId)
+	fmt.Println("LOCATION_ID", price.LocationId)
+	fmt.Println("MICROCATEGORY_ID", price.MicrocategoryId)
 
 }

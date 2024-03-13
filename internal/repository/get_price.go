@@ -13,24 +13,30 @@ const (
 	baselineMatrixName = "baseline_matrix"
 )
 
+type output struct {
+	LocationId      int64
+	MicrocategoryId int64
+	Price           int64
+}
+
 func (rep *Repository) GetPrice(
 	isDiscount bool,
 	matrixId int64,
 	locationsRoadUp []int64,
 	categoriesRoadUp []int64,
-) (int64, error) {
+) (output, error) {
 	for _, locationId := range locationsRoadUp {
 		for _, microcategoryId := range categoriesRoadUp {
 			// Check cache
 			price, err := rep.getPriceCache(isDiscount, matrixId, locationId, microcategoryId)
 			if err != nil && err != redis.Nil {
-				return -1, err
+				return output{locationId, microcategoryId, -1}, err
 			}
 
 			if err == nil && price != -1 {
 				// If price has found
 				// fmt.Printf("Found in cache: Microcategory_id=%v, Location_id=%v, price=%v\n", microcategoryId, locationId, price)
-				return price, nil
+				return output{locationId, microcategoryId, price}, nil
 			} else if err == nil && price == -1 {
 				// fmt.Printf("Found in cache: Microcategory_id=%v, Location_id=%v, price=%v\n", microcategoryId, locationId, price)
 				continue
@@ -42,18 +48,18 @@ func (rep *Repository) GetPrice(
 			price, err = rep.fetchDatabase(isDiscount, matrixId, locationId, microcategoryId)
 			if err != nil && err != sql.ErrNoRows {
 				// Catched an error
-				return -1, err
+				return output{locationId, microcategoryId, -1}, err
 			} else if err != nil && err == sql.ErrNoRows {
 				// Did not find data
 				rep.setPriceCache(isDiscount, matrixId, locationId, microcategoryId, -1)
 			} else if err == nil {
 				// Found data in database
 				rep.setPriceCache(isDiscount, matrixId, locationId, microcategoryId, price)
-				return price, nil
+				return output{locationId, microcategoryId, price}, nil
 			}
 		}
 	}
-	return -1, nil
+	return output{locationsRoadUp[0], categoriesRoadUp[0], -1}, nil
 }
 
 func (rep *Repository) getPriceCache(

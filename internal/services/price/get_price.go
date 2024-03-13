@@ -12,16 +12,18 @@ import (
 )
 
 type segmentStatus struct {
-	segmentId  int64
-	discountId int64
-	price      int64
+	segmentId       int64
+	discountId      int64
+	locationId      int64
+	microcategoryId int64
+	price           int64
 }
 
 func (service *priceService) GetPrice(r models.PriceRequest, s models.Storage) (models.PriceInfo, error) {
 	// TODO: get user segments
 	userSegments := discount_segments.GetSegmentsByUserID(r.UserId)
 
-	discounts, err := service.getDiscountMatricesBySegments(userSegments, s.Discounts)
+	discounts, err := service.getDiscountMatricesBySegments(userSegments, s.Discounts, r.LocationId, r.MicrocategoryId)
 	if err != nil {
 		return models.PriceInfo{}, err
 	}
@@ -52,7 +54,7 @@ func (service *priceService) GetPrice(r models.PriceRequest, s models.Storage) (
 		wg.Add(1)
 		go func(i int) {
 			defer wg.Done()
-			price, err := service.repo.GetPrice(
+			priceData, err := service.repo.GetPrice(
 				true,
 				discounts[i].discountId,
 				locationsRoadUp,
@@ -63,7 +65,9 @@ func (service *priceService) GetPrice(r models.PriceRequest, s models.Storage) (
 				return
 			}
 
-			discounts[i].price = price
+			discounts[i].price = priceData.Price
+			discounts[i].locationId = priceData.LocationId
+			discounts[i].microcategoryId = priceData.MicrocategoryId
 		}(i)
 	}
 
@@ -85,8 +89,8 @@ func (service *priceService) GetPrice(r models.PriceRequest, s models.Storage) (
 			fmt.Println("Found in discount ", v.discountId)
 			return models.PriceInfo{
 				Price:           v.price,
-				LocationId:      r.LocationId,
-				MicrocategoryId: r.MicrocategoryId,
+				LocationId:      v.locationId,
+				MicrocategoryId: v.microcategoryId,
 				IsDiscount:      true,
 				MatrixId:        v.discountId,
 				UserSegmentId:   v.segmentId,
@@ -95,7 +99,7 @@ func (service *priceService) GetPrice(r models.PriceRequest, s models.Storage) (
 	}
 
 	// Get from baseline
-	price, err := service.repo.GetPrice(
+	priceData, err := service.repo.GetPrice(
 		false,
 		baselineId,
 		locationsRoadUp,
@@ -106,9 +110,9 @@ func (service *priceService) GetPrice(r models.PriceRequest, s models.Storage) (
 	}
 
 	return models.PriceInfo{
-		Price:           price,
-		LocationId:      r.LocationId,
-		MicrocategoryId: r.MicrocategoryId,
+		Price:           priceData.Price,
+		LocationId:      priceData.LocationId,
+		MicrocategoryId: priceData.MicrocategoryId,
 		IsDiscount:      false,
 		MatrixId:        baselineId,
 		UserSegmentId:   -1,
@@ -116,7 +120,12 @@ func (service *priceService) GetPrice(r models.PriceRequest, s models.Storage) (
 }
 
 // Get discount matrices info by segment id
-func (service *priceService) getDiscountMatricesBySegments(userSegments []int64, allDiscountMatrices []models.Discount) ([]segmentStatus, error) {
+func (service *priceService) getDiscountMatricesBySegments(
+	userSegments []int64,
+	allDiscountMatrices []models.Discount,
+	locationId,
+	microcategoryId int64,
+) ([]segmentStatus, error) {
 	discounts := []segmentStatus{}
 
 	for _, m := range allDiscountMatrices {
@@ -125,7 +134,14 @@ func (service *priceService) getDiscountMatricesBySegments(userSegments []int64,
 			if err != nil {
 				return []segmentStatus{}, err
 			}
-			discounts = append(discounts, segmentStatus{m.SegmentId, int64(discountId), -1})
+			discounts = append(discounts, segmentStatus{
+				m.SegmentId,
+				int64(discountId),
+				locationId,
+				microcategoryId,
+				-1,
+			},
+			)
 		}
 	}
 

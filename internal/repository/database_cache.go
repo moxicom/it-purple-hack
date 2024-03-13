@@ -35,5 +35,6 @@ func (rep *Repository) deleteMatrixCache(
 	microcategoryId int64,
 ) error {
 	key := fmt.Sprintf("%s_%v_%v", matrixName, locationID, microcategoryId)
-	return rep.cacheDb.Del(ctx, key).Err()
+	err := rep.cacheDb.Del(ctx, key).Err()
+	return err
 }
