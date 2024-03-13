@@ -19,7 +19,7 @@ type segmentStatus struct {
 	price           int64
 }
 
-func (service *priceService) GetPrice(r models.PriceRequest, s models.Storage) (models.PriceInfo, error) {
+func (service *PriceService) GetPrice(r models.PriceRequest, s models.Storage) (models.PriceInfo, error) {
 	// TODO: get user segments
 	userSegments := discount_segments.GetSegmentsByUserID(r.UserId)
 
@@ -120,7 +120,7 @@ func (service *priceService) GetPrice(r models.PriceRequest, s models.Storage) (
 }
 
 // Get discount matrices info by segment id
-func (service *priceService) getDiscountMatricesBySegments(
+func (service *PriceService) getDiscountMatricesBySegments(
 	userSegments []int64,
 	allDiscountMatrices []models.Discount,
 	locationId,

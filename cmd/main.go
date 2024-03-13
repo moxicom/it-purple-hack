@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 
 	"github.com/joho/godotenv"
 	"github.com/moxicom/it-purple-hack/config"
@@ -33,7 +35,7 @@ func main() {
 	// locationsTree.PrintTree()
 	categories.PrintTree()
 
-	priceService := price.NewPriceService(repo, categories, locationsTree)
+	PriceService := price.NewPriceService(repo, categories, locationsTree)
 
 	//
 	// Mock service requests
@@ -52,7 +54,7 @@ func main() {
 			},
 		},
 	}
-	price, err := priceService.GetPrice(
+	price, err := PriceService.GetPrice(
 		models.PriceRequest{
 			LocationId:      7,
 			MicrocategoryId: 18,
@@ -74,7 +76,7 @@ func main() {
 
 	fmt.Println()
 	fmt.Println("Update")
-	err = priceService.UpdatePrice(
+	err = PriceService.UpdatePrice(
 		models.UpdateRequest{
 			LocationId:      7,
 			MicrocategoryId: 18,
@@ -89,7 +91,7 @@ func main() {
 		panic(err)
 	}
 
-	price, err = priceService.GetPrice(
+	price, err = PriceService.GetPrice(
 		models.PriceRequest{
 			LocationId:      7,
 			MicrocategoryId: 18,
@@ -111,7 +113,7 @@ func main() {
 
 	fmt.Println()
 	fmt.Println("Delete")
-	err = priceService.DeleteDiscount(
+	err = PriceService.DeleteDiscount(
 		models.UpdateRequest{
 			LocationId:      7,
 			MicrocategoryId: 18,
@@ -125,7 +127,7 @@ func main() {
 		panic(err)
 	}
 
-	price, err = priceService.GetPrice(
+	price, err = PriceService.GetPrice(
 		models.PriceRequest{
 			LocationId:      7,
 			MicrocategoryId: 18,
@@ -146,4 +148,6 @@ func main() {
 	fmt.Println("LOCATION_ID", price.LocationId)
 	fmt.Println("MICROCATEGORY_ID", price.MicrocategoryId)
 
+	http.HandleFunc("POST /get_price", api_handlers.get_price(&PriceService, testStorage))
+	log.Fatalln(http.ListenAndServe(":8080", nil))
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/moxicom/it-purple-hack/models"
 )
 
-func (service *priceService) DeleteDiscount(r models.UpdateRequest, s models.Storage) error {
+func (service *PriceService) DeleteDiscount(r models.UpdateRequest, s models.Storage) error {
 	if r.IsDiscount {
 		return service.repo.DeletePrice(
 			r.MatrixId,
