@@ -34,3 +34,17 @@ func (rep *Repository) updatePairPrice(
 	)
 	return err
 }
+
+func (rep *Repository) deletePairPrice(
+	matrixName string,
+	locationID int64,
+	microcategoryId int64,
+	newPrice int64,
+) error {
+	_, err := rep.db.Exec(
+		fmt.Sprintf(
+			"DELETE FROM %s WHERE location_id = $1 AND microcategory_id = $2", matrixName,
+		), locationID, microcategoryId,
+	)
+	return err
+}

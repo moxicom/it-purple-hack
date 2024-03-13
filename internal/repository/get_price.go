@@ -29,14 +29,14 @@ func (rep *Repository) GetPrice(
 
 			if err == nil && price != -1 {
 				// If price has found
-				fmt.Printf("Found in cache: Microcategory_id=%v, Location_id=%v, price=%v\n", microcategoryId, locationId, price)
+				// fmt.Printf("Found in cache: Microcategory_id=%v, Location_id=%v, price=%v\n", microcategoryId, locationId, price)
 				return price, nil
 			} else if err == nil && price == -1 {
-				fmt.Printf("Found in cache: Microcategory_id=%v, Location_id=%v, price=%v\n", microcategoryId, locationId, price)
+				// fmt.Printf("Found in cache: Microcategory_id=%v, Location_id=%v, price=%v\n", microcategoryId, locationId, price)
 				continue
 			}
 
-			fmt.Printf("No redis cache: matrix_id=%v Location_id=%v Microcategory_id=%v\n", matrixId, locationId, microcategoryId)
+			// fmt.Printf("No redis cache: matrix_id=%v Location_id=%v Microcategory_id=%v\n", matrixId, locationId, microcategoryId)
 
 			// TODO: fetch databse
 			price, err = rep.fetchDatabase(isDiscount, matrixId, locationId, microcategoryId)

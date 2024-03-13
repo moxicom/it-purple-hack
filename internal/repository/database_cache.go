@@ -27,3 +27,13 @@ func (rep *Repository) setMatrixCache(
 	}
 	return err
 }
+
+func (rep *Repository) deleteMatrixCache(
+	ctx context.Context,
+	matrixName string,
+	locationID,
+	microcategoryId int64,
+) error {
+	key := fmt.Sprintf("%s_%v_%v", matrixName, locationID, microcategoryId)
+	return rep.cacheDb.Del(ctx, key).Err()
+}

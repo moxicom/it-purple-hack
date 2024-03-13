@@ -103,4 +103,37 @@ func main() {
 	fmt.Println("PRICE", price.Price)
 	fmt.Println("SEGMENT_ID", price.UserSegmentId)
 
+	err = priceService.DeleteDiscount(
+		models.UpdateRequest{
+			LocationId:      7,
+			MicrocategoryId: 18,
+			MatrixId:        1,
+			IsDiscount:      true,
+		},
+		testStorage,
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	price, err = priceService.GetPrice(
+		models.PriceRequest{
+			LocationId:      7,
+			MicrocategoryId: 18,
+			UserId:          2200,
+			// 168, 290,
+		},
+		testStorage,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println()
+	fmt.Println("IS DISC", price.IsDiscount)
+	fmt.Println("MATR_ID", price.MatrixId)
+	fmt.Println("PRICE", price.Price)
+	fmt.Println("SEGMENT_ID", price.UserSegmentId)
+
 }
