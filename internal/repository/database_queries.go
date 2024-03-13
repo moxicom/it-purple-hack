@@ -39,7 +39,6 @@ func (rep *Repository) deletePairPrice(
 	matrixName string,
 	locationID int64,
 	microcategoryId int64,
-	newPrice int64,
 ) error {
 	_, err := rep.db.Exec(
 		fmt.Sprintf(

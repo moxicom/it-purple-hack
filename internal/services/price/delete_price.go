@@ -12,7 +12,6 @@ func (service *priceService) DeleteDiscount(r models.UpdateRequest, s models.Sto
 			r.MatrixId,
 			r.LocationId,
 			r.MicrocategoryId,
-			r.NewPrice,
 		)
 	}
 	return errors.New("can not delete row from baseline matrix")
