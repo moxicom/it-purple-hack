@@ -1,6 +1,9 @@
 # Project
 .env
 
+sql_scripts/
+redis_data/
+
 #
 # Binaries for programs and plugins
 *.exe

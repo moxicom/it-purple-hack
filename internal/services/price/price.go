@@ -7,10 +7,10 @@ import (
 
 type priceService struct {
 	repo           *repository.Repository
-	categoriesTree *trees.Node
-	locationsTree  *trees.Node
+	categoriesTree *trees.Tree
+	locationsTree  *trees.Tree
 }
 
-func NewPriceService(repo *repository.Repository, categoriesTree *trees.Node, locationsTree *trees.Node) *priceService {
+func NewPriceService(repo *repository.Repository, categoriesTree *trees.Tree, locationsTree *trees.Tree) *priceService {
 	return &priceService{repo, categoriesTree, locationsTree}
 }

@@ -1,6 +1,6 @@
 package trees
 
-var rawCategories = RawData{
+var rawCategories = []RawData{{
 	Name: "Категории товаров",
 	SubElements: []RawData{
 		{
@@ -35,6 +35,6 @@ var rawCategories = RawData{
 				{Name: "Посуда и товары для кухни"},
 			},
 		},
-		// Другие категории здесь...
 	},
+},
 }

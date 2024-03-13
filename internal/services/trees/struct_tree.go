@@ -21,11 +21,13 @@ type RawData struct {
 	SubElements []RawData
 }
 
-func NewTree(data RawData, idGlobal *int64) *Tree {
+func NewTree(data []RawData, idGlobal *int64) *Tree {
 	tree := &Tree{
 		Nodes: make(map[int64]Node, 0),
 	}
-	tree.insertNodeRecursively(data, idGlobal, -1)
+	for _, el := range data {
+		tree.insertNodeRecursively(el, idGlobal, -1)
+	}
 	return tree
 }
 
@@ -57,14 +59,14 @@ func (tree *Tree) PrintTree() {
 		return nodes[i] < nodes[j]
 	})
 	for _, nodeId := range nodes {
-		tree.PrintNode(nodeId, 0)
+		tree.printNode(nodeId, 0)
 	}
 }
 
-func (tree *Tree) PrintNode(nodeId int64, indent int) {
+func (tree *Tree) printNode(nodeId int64, indent int) {
 	fmt.Printf("%s%d - %s\n", generateIndent(indent), nodeId, tree.Nodes[nodeId].Name)
 	for _, child := range tree.Nodes[nodeId].ChildrenId {
-		tree.PrintNode(child, indent+2)
+		tree.printNode(child, indent+2)
 	}
 }
 
