@@ -5,12 +5,12 @@ import (
 	"github.com/moxicom/it-purple-hack/internal/services/trees"
 )
 
-type priceService struct {
+type PriceService struct {
 	repo           *repository.Repository
 	categoriesTree *trees.Tree
 	locationsTree  *trees.Tree
 }
 
-func NewPriceService(repo *repository.Repository, categoriesTree *trees.Tree, locationsTree *trees.Tree) *priceService {
-	return &priceService{repo, categoriesTree, locationsTree}
+func NewPriceService(repo *repository.Repository, categoriesTree *trees.Tree, locationsTree *trees.Tree) *PriceService {
+	return &PriceService{repo, categoriesTree, locationsTree}
 }
